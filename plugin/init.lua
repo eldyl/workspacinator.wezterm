@@ -106,7 +106,7 @@ function M.apply_to_config(config, workspacinator_config)
   end
 
   if not mods then
-    mods = "LEADER"
+    mods = "CTRL|ALT"
   end
 
   table.insert(config.keys, {
