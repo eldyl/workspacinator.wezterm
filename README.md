@@ -24,6 +24,8 @@ in a fuzzy finder.
 - Create a workspace named after the directory you select, and switch to it.
 - Create a workspace named after the domain you select, and connect to the domain.
 
+![workspacinator_demo](https://github.com/user-attachments/assets/569e8b47-f339-4717-a11f-ca215caf11ce)
+
 ## Installation
 
 Add the following to your `wezterm.lua`.
