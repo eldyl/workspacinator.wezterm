@@ -63,7 +63,7 @@ local function parse_dirs_to_workspaces(user_provided_directories)
 end
 
 ---@param directories string[]
----@param ssh_domains? string[]
+---@param ssh_domains? table[]
 ---@return action_callback
 local function use_workspacinator(directories, ssh_domains)
   return wezterm.action_callback(function(window, pane)
@@ -165,7 +165,7 @@ end
 -- Here we create a function to call our workspacinator module, which we will
 -- call in our `wezterm.lua` with our desired configuration
 ---@param config table
----@param workspacinator_config  { directories: string[], ssh_domains?: string[], key?: string, mods?: string}
+---@param workspacinator_config  { directories: string[], ssh_domains?: table[], key?: string, mods?: string}
 function M.apply_to_config(config, workspacinator_config)
   local key = workspacinator_config.key
 
