@@ -8,6 +8,12 @@ local M = {}
 
 local HOME = wezterm.home_dir -- User home directory
 
+local FUZZY_DESCRIPTION = wezterm.format({
+  { Attribute = { Intensity = "Bold" } },
+  { Foreground = { AnsiColor = "Fuchsia" } },
+  { Text = "Switch to Workspace -> " },
+})
+
 ---Splits a string on whitespace and returns the resulting table.
 ---@param str string
 ---@return string[]
@@ -158,11 +164,7 @@ local function use_workspacinator(directories, ssh_domains)
         title = "Workspacinator 💪",
         choices = workspaces,
         fuzzy = true,
-        fuzzy_description = wezterm.format({
-          { Attribute = { Intensity = "Bold" } },
-          { Foreground = { AnsiColor = "Fuchsia" } },
-          { Text = "Switch to Workspace -> " },
-        }),
+        fuzzy_description = FUZZY_DESCRIPTION,
       }),
       pane
     )
