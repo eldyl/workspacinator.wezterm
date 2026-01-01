@@ -6,6 +6,8 @@ local mux = wezterm.mux
 
 local M = {}
 
+local HOME = wezterm.home_dir -- User home directory
+
 ---@param str string
 ---@param sep? string
 local function split(str, sep)
@@ -22,12 +24,11 @@ end
 ---@param user_provided_directories string[]
 ---@return table workspaces
 local function parse_dirs_to_workspaces(user_provided_directories)
-  local home = wezterm.home_dir -- Home directory according to wezterm
   local workspaces = {} -- Holds dynamically created workspaces
   local query = { "find" }
 
   for _, dir in ipairs(user_provided_directories) do
-    table.insert(query, home .. dir)
+    table.insert(query, HOME .. dir)
   end
 
   local additonal_arguments = {
