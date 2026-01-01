@@ -162,36 +162,23 @@ local function use_workspacinator(directories, ssh_domains)
   end)
 end
 
--- Here we create a function to call our workspacinator module, which we will
--- call in our `wezterm.lua` with our desired configuration
+---Here we create a function to call our workspacinator module, which we will
+---call in our `wezterm.lua` with our desired configuration.
 ---@param config table
 ---@param workspacinator_config  { directories: string[], ssh_domains?: table[], key?: string, mods?: string}
 function M.apply_to_config(config, workspacinator_config)
-  local key = workspacinator_config.key
-
-  local mods = workspacinator_config.mods
-
-  local ssh_domains = workspacinator_config.ssh_domains
-
   local directories = workspacinator_config.directories
+  local ssh_domains = workspacinator_config.ssh_domains
+  local key = workspacinator_config.key or "f"
+  local mods = workspacinator_config.mods or "CTRL|ALT"
 
-  if not key then
-    key = "f"
-  end
+  config.keys = config.keys or {}
 
-  if not mods then
-    mods = "CTRL|ALT"
-  end
-
-  if not config.keys then
-    config.keys = {}
-  end
-
-  table.insert(config.keys, {
+  config.keys[#config.keys + 1] = {
     key = key,
     mods = mods,
     action = use_workspacinator(directories, ssh_domains),
-  })
+  }
 end
 
 return M
