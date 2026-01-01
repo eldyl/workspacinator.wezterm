@@ -128,45 +128,41 @@ end
 local function use_workspacinator(directories, ssh_domains)
   return wezterm.action_callback(function(window, pane)
     local workspaces = {}
-    local active_workspaces = mux.get_workspace_names()
-    local filesystem_workspaces = parse_dirs_to_workspaces(directories)
 
-    -- Active Workspaces
-    if active_workspaces then
-      for _, active in ipairs(active_workspaces) do
-        table.insert(workspaces, {
-          id = active,
-          label = "Active: " .. active,
-        })
-      end
+    -- Add active workspaces to list
+    for _, active in ipairs(mux.get_workspace_names()) do
+      workspaces[#workspaces + 1] = {
+        id = active,
+        label = "Active: " .. active,
+      }
     end
 
-    -- SSH Domains
+    -- Add ssh domains to list
     if ssh_domains then
       for _, domain in ipairs(ssh_domains) do
         if domain["multiplexing"] == "None" then
-          table.insert(workspaces, {
+          workspaces[#workspaces + 1] = {
             id = "SSH: " .. domain["name"],
             label = "SSH: " .. domain["name"],
-          })
+          }
         else
-          table.insert(workspaces, {
+          workspaces[#workspaces + 1] = {
             id = "MUX: " .. domain["name"],
             label = "MUX: " .. domain["name"],
-          })
+          }
         end
       end
     end
 
-    -- Filesystem
-    for _, dir in ipairs(filesystem_workspaces) do
-      table.insert(workspaces, dir)
+    -- Add directories from filesystem to list
+    for _, dir in ipairs(parse_dirs_to_workspaces(directories)) do
+      workspaces[#workspaces + 1] = dir
     end
 
     window:perform_action(
       act.InputSelector({
         action = wezterm.action_callback(handle_workspace_selection),
-        title = "Workspacinator 💪",
+        title = "Workspacinator",
         choices = workspaces,
         fuzzy = true,
         fuzzy_description = FUZZY_DESCRIPTION,
