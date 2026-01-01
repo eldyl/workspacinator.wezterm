@@ -77,6 +77,51 @@ local function parse_dirs_to_workspaces(user_provided_directories)
   return workspaces
 end
 
+local function handle_workspace_selection(inner_window, inner_pane, id, label)
+  if not (id and label) then
+    return
+  end
+
+  local parts = split_whitespace(label)
+  local prefix = parts[1]
+
+  if prefix == "MUX:" or prefix == "SSH:" then
+    label = parts[2]
+
+    return inner_window:perform_action(
+      act.SwitchToWorkspace({
+        name = label,
+        spawn = {
+          label = "Workspace: " .. label,
+          domain = { DomainName = label },
+        },
+      }),
+      inner_pane
+    )
+  end
+
+  -- If selecting active_workspace or filesystem_workspaces
+  -- Isolate final directory as new workspace name
+  label = label:match("([^/]+)$") or label
+
+  -- If Active, trim on selection
+  if prefix == "Active:" then
+    label = parts[2]
+  end
+
+  return inner_window:perform_action(
+    act.SwitchToWorkspace({
+      name = label,
+      spawn = {
+        label = "Workspace: " .. label,
+        cwd = id,
+        domain = "DefaultDomain",
+      },
+    }),
+    inner_pane
+  )
+end
+
 ---@param directories string[]
 ---@param ssh_domains? string[]
 ---@return action_callback
@@ -120,49 +165,7 @@ local function use_workspacinator(directories, ssh_domains)
 
     window:perform_action(
       act.InputSelector({
-        action = wezterm.action_callback(
-          function(inner_window, inner_pane, id, label)
-            if id and label then
-              if split_whitespace(label)[1] == "MUX:" or split_whitespace(label)[1] == "SSH:" then
-                label = split_whitespace(label)[2]
-
-                inner_window:perform_action(
-                  act.SwitchToWorkspace({
-                    name = label,
-                    spawn = {
-                      label = "Workspace: " .. label,
-                      domain = { DomainName = label },
-                    },
-                  }),
-                  inner_pane
-                )
-              else
-                -- If selecting active_workspace or filesystem_workspaces
-                -- Isolate final directory as new workspace name
-                for last_directory_in_path in label:gmatch("[^/]+") do
-                  label = last_directory_in_path
-                end
-
-                -- If Active, trim on selection
-                if split_whitespace(label)[1] == "Active:" then
-                  label = split_whitespace(label)[2]
-                end
-
-                inner_window:perform_action(
-                  act.SwitchToWorkspace({
-                    name = label,
-                    spawn = {
-                      label = "Workspace: " .. label,
-                      cwd = id,
-                      domain = "DefaultDomain",
-                    },
-                  }),
-                  inner_pane
-                )
-              end
-            end
-          end
-        ),
+        action = wezterm.action_callback(handle_workspace_selection),
         title = "Workspacinator 💪",
         choices = workspaces,
         fuzzy = true,
