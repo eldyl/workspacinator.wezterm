@@ -28,11 +28,15 @@ end
 ---@param user_provided_directories string[]
 ---@return table workspaces
 local function parse_dirs_to_workspaces(user_provided_directories)
+  if not user_provided_directories then
+    return {}
+  end
+
   local workspaces = {} -- Holds dynamically created workspaces
   local query = { "find" }
 
   for _, dir in ipairs(user_provided_directories) do
-    table.insert(query, HOME .. dir)
+    query[#query + 1] = HOME .. dir
   end
 
   local additonal_arguments = {
@@ -54,22 +58,20 @@ local function parse_dirs_to_workspaces(user_provided_directories)
   }
 
   for _, arg in ipairs(additonal_arguments) do
-    table.insert(query, arg)
+    query[#query + 1] = arg
   end
 
-  local success, stdout, stderr = wezterm.run_child_process(query)
-
-  if success == true then
-    local list_of_directories = stdout
-
-    for dir in list_of_directories:gmatch("([^\n]*)(\n?)") do
-      table.insert(workspaces, {
+  local ok, stdout, stderr = wezterm.run_child_process(query)
+  if ok then
+    -- Match one or more characters that aren't newlines
+    for dir in stdout:gmatch("[^\n]+") do
+      workspaces[#workspaces + 1] = {
         id = dir,
         label = dir,
-      })
+      }
     end
   else
-    wezterm.log_info("Error finding directories", stderr)
+    wezterm.log_error("Error calling `find` on provided directories", stderr)
   end
 
   return workspaces
