@@ -8,17 +8,15 @@ local M = {}
 
 local HOME = wezterm.home_dir -- User home directory
 
+---Splits a string on whitespace and returns the resulting table.
 ---@param str string
----@param sep? string
-local function split(str, sep)
-  sep = sep or "%s"
+---@return string[]
+local function split_whitespace(str)
   local t = {}
-  for field, s in string.gmatch(str, "([^" .. sep .. "]*)(" .. sep .. "?)") do
-    table.insert(t, field)
-    if s == "" then
-      return t
-    end
+  for field in string.gmatch(str, "%S+") do
+    t[#t + 1] = field
   end
+  return t
 end
 
 ---@param user_provided_directories string[]
@@ -109,8 +107,8 @@ local function use_workspacinator(directories, ssh_domains)
         action = wezterm.action_callback(
           function(inner_window, inner_pane, id, label)
             if id and label then
-              if split(label)[1] == "MUX:" or split(label)[1] == "SSH:" then
-                label = split(label)[2]
+              if split_whitespace(label)[1] == "MUX:" or split_whitespace(label)[1] == "SSH:" then
+                label = split_whitespace(label)[2]
 
                 inner_window:perform_action(
                   act.SwitchToWorkspace({
@@ -130,8 +128,8 @@ local function use_workspacinator(directories, ssh_domains)
                 end
 
                 -- If Active, trim on selection
-                if split(label)[1] == "Active:" then
-                  label = split(label)[2]
+                if split_whitespace(label)[1] == "Active:" then
+                  label = split_whitespace(label)[2]
                 end
 
                 inner_window:perform_action(
