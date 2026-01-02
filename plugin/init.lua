@@ -44,17 +44,9 @@ local function parse_dirs_to_workspaces(user_provided_directories)
     "1",
     "-maxdepth",
     "1",
-    "(",
+    "!",
     "-type",
-    "d",
-    "-o",
-    "(",
-    "-type",
-    "l",
-    "-xtype",
-    "d",
-    ")",
-    ")",
+    "f",
   }
 
   for _, arg in ipairs(additonal_arguments) do
